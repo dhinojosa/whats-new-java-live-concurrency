@@ -38,6 +38,22 @@ public class VirtualThreadTest {
     }
 
     @Test
+    void testThreadOldWay() throws InterruptedException {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1200);
+                    System.out.println("Running inside of a thread");
+                } catch (InterruptedException e) {
+                    System.err.println("Thread interrupted");
+                }
+            }
+        });
+        t.start();
+        t.join(); //wait here until t is done
+    }
+    @Test
     void testVirtualThreadUnstarted() throws InterruptedException {
         Thread unstartedThread = Thread.ofVirtual().unstarted(
             () -> {
@@ -89,7 +105,8 @@ public class VirtualThreadTest {
 
     @Test
     void testVirtualThreadInTryWithResources() {
-        try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
+        try (ExecutorService executorService =
+                 Executors.newVirtualThreadPerTaskExecutor()) {
             Future<Long> future = executorService.submit(() -> {
                 Thread currentThread = Thread.currentThread();
                 System.out.printf("Thread %s in the future", currentThread);
